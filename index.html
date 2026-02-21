@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoreElement.AI | KZ-ALTYN-47 Demo</title>
+  <style>
+    :root {
+      --bg: #080c14;
+      --panel: #0f1625;
+      --panel2: #132033;
+      --text: #d8e6ff;
+      --muted: #86a4d3;
+      --cyan: #46c6ff;
+      --green: #45d483;
+      --red: #ff4c63;
+      --amber: #f8b84a;
+      --line: #233651;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      background: radial-gradient(circle at 20% 0%, #101b2e 0%, var(--bg) 50%);
+      color: var(--text);
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(8,12,20,0.94);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+      padding: 10px 14px;
+    }
+    .topline {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .brand { font-weight: 700; color: #f4fbff; letter-spacing: 0.3px; }
+    .project { color: var(--muted); font-size: 13px; }
+    nav { display: grid; grid-template-columns: repeat(8, minmax(90px, 1fr)); gap: 8px; }
+    .tab-btn {
+      background: #111b2c;
+      color: #9cc0ef;
+      border: 1px solid #243957;
+      border-radius: 8px;
+      padding: 8px 6px;
+      font-size: 12px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .tab-btn.active { background: #17315b; color: #fff; border-color: #4c86d9; }
+    main { padding: 14px; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .grid { display: grid; gap: 12px; }
+    .grid-2 { grid-template-columns: 1.2fr 1fr; }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .panel {
+      background: linear-gradient(180deg, var(--panel2), var(--panel));
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .title { font-size: 15px; font-weight: 700; margin: 0 0 8px; }
+    .subtitle { font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+    .source-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .src-card { background: #101c2f; border: 1px solid #213551; padding: 8px; border-radius: 8px; font-size: 12px; }
+    .layer-buttons, .three-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .small-btn { background: #12243d; color: #a9cbf7; border: 1px solid #2b4d77; border-radius: 6px; padding: 6px 8px; cursor: pointer; font-size: 12px; }
+    .small-btn.active { background: #1e3f6a; color: #fff; }
+    canvas { width: 100%; background: #0b1320; border: 1px solid #1e304a; border-radius: 8px; display: block; }
+    .h220 { height: 220px; }
+    .h260 { height: 260px; }
+    .h300 { height: 300px; }
+    .h360 { height: 360px; }
+    .legend { font-size: 12px; color: #b7d2f5; line-height: 1.6; }
+    .split { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .metric { background: #0f1b2d; border: 1px solid #243a5a; border-radius: 8px; padding: 8px; }
+    .badge { display: inline-block; padding: 3px 6px; border-radius: 6px; background: #4c3a12; color: #ffd687; font-size: 11px; }
+    .note { font-size: 11px; color: #84a5d9; }
+    .kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+    .kpi { font-size: 12px; background: #0f1a2b; border: 1px solid #27405f; border-radius: 8px; padding: 8px; }
+    .right-col { display: grid; gap: 10px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topline">
+      <div class="brand">CoreElement.AI</div>
+      <div class="project">KZ-ALTYN-47 | Au | Central Kazakhstan | UTM 48N 68E</div>
+    </div>
+    <nav id="topNav"></nav>
+  </header>
+
+  <main>
+    <section class="screen active" id="screen1">
+      <div class="grid grid-2">
+        <div class="panel">
+          <h3 class="title">01 Data Lake</h3>
+          <p class="subtitle">11 data sources integrated in real-time ingestion pipeline</p>
+          <div class="source-cards" id="sourceCards"></div>
+          <div class="layer-buttons" id="layerButtons"></div>
+          <canvas id="cv1" class="h360" width="960" height="360"></canvas>
+        </div>
+        <div class="right-col">
+          <div class="panel"><h3 class="title">Satellite / Seismic / Magnetics Stack</h3><canvas id="cv2" class="h220" width="500" height="220"></canvas></div>
+          <div class="panel"><h3 class="title">Layer Color Scale</h3><canvas id="cv3" class="h220" width="500" height="220"></canvas></div>
+          <div class="panel"><h3 class="title">Anomaly Confidence</h3><canvas id="cv4" class="h220" width="500" height="220"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen2">
+      <div class="grid grid-2">
+        <div class="panel"><h3 class="title">02 Anomaly Detection: RTP + Bouguer</h3><canvas id="cv5" class="h300" width="900" height="300"></canvas></div>
+        <div class="panel"><h3 class="title">Radiometric K-Th-U RGB</h3><canvas id="cv6" class="h300" width="500" height="300"></canvas></div>
+      </div>
+      <div class="grid grid-2" style="margin-top:12px;">
+        <div class="panel"><h3 class="title">Structural Interpretation</h3><canvas id="cv7" class="h260" width="900" height="260"></canvas></div>
+        <div class="panel"><h3 class="title">Anomaly Ranking</h3><canvas id="cv8" class="h260" width="500" height="260"></canvas></div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen3">
+      <div class="grid grid-2">
+        <div class="panel"><h3 class="title">03 AI Prospectivity Map</h3><canvas id="cv9" class="h300" width="900" height="300"></canvas></div>
+        <div class="panel"><h3 class="title">Depth Slices</h3><canvas id="cv10" class="h300" width="500" height="300"></canvas></div>
+      </div>
+      <div class="panel" style="margin-top:12px;"><h3 class="title">Cross-Section A-A'</h3><canvas id="cv11" class="h260" width="1400" height="260"></canvas></div>
+    </section>
+
+    <section class="screen" id="screen4">
+      <div class="split">
+        <div class="panel">
+          <h3 class="title">04 3D Subsurface Viewer</h3>
+          <div class="three-buttons" id="threeButtons"></div>
+          <div id="threeHost" style="height:460px;border:1px solid #203555;border-radius:8px;"></div>
+        </div>
+        <div class="panel">
+          <h3 class="title">Legend & Block Model Stats</h3>
+          <div class="legend" id="legendBox"></div>
+          <canvas id="cv12" class="h220" width="430" height="220"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen5">
+      <div class="grid grid-2">
+        <div class="panel"><h3 class="title">05 Drill Targeting Plan</h3><canvas id="cv14" class="h300" width="900" height="300"></canvas></div>
+        <div class="panel"><h3 class="title">Probability Scenarios</h3><canvas id="cv15" class="h300" width="500" height="300"></canvas></div>
+      </div>
+      <div class="panel" style="margin-top:12px;"><h3 class="title">Drill Section</h3><canvas id="cv16" class="h260" width="1400" height="260"></canvas></div>
+    </section>
+
+    <section class="screen" id="screen6">
+      <div class="grid grid-3">
+        <div class="panel"><h3 class="title">06 Real-Time Telemetry</h3><canvas id="cv17" class="h260" width="450" height="260"></canvas></div>
+        <div class="panel"><h3 class="title">Well Trajectory</h3><canvas id="cv18" class="h260" width="450" height="260"></canvas></div>
+        <div class="panel"><h3 class="title">Alert Log</h3><canvas id="cv19" class="h260" width="450" height="260"></canvas></div>
+      </div>
+      <div class="grid grid-2" style="margin-top:12px;">
+        <div class="panel"><h3 class="title">Gamma Log</h3><canvas id="cv20" class="h260" width="900" height="260"></canvas></div>
+        <div class="panel"><h3 class="title">Lithology Log</h3><canvas id="cv21" class="h260" width="500" height="260"></canvas></div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen7">
+      <div class="grid grid-3">
+        <div class="panel"><h3 class="title">07 Core Scan</h3><canvas id="cv22" class="h260" width="450" height="260"></canvas></div>
+        <div class="panel"><h3 class="title">XRF Assay</h3><canvas id="cv23" class="h260" width="450" height="260"></canvas></div>
+        <div class="panel"><h3 class="title">Hyperspectral + Quantum Signal</h3><canvas id="cv24" class="h260" width="450" height="260"></canvas></div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen8">
+      <div class="panel">
+        <h3 class="title">08 ROI Dashboard</h3>
+        <div class="kpi-row" id="kpiRow"></div>
+      </div>
+      <div class="grid grid-2" style="margin-top:12px;">
+        <div class="panel"><h3 class="title">Vertical Metrics Columns</h3><canvas id="cv25" class="h300" width="900" height="300"></canvas></div>
+        <div class="panel">
+          <h3 class="title">Timeline + NPV + Waterfall</h3>
+          <canvas id="cv26" class="h300" width="500" height="300"></canvas>
+          <p class="note">Traditional: 7.5 years | AI: 4 weeks | 97% faster</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script>
+    var threeScene = null;
+    var threeCamera = null;
+    var threeRenderer = null;
+    var threeControlsState = { dragging: false, x: 0, y: 0, rx: -0.6, ry: 0.8, zoom: 1.0 };
+    var threeRoot = null;
+    var threeGrid = null;
+    var threeFault = null;
+    var threeOreGroup = null;
+    var threeDrills = [];
+    var activeLayer = 'Satellite';
+    var activeScreen = 1;
+    var showFlags = { ore: true, drills: true, faults: true, section: true, grid: true };
+
+    function getCtx(id) { return document.getElementById(id).getContext('2d'); }
+    function rand(i, j) { return (Math.sin(i * 12.9898 + j * 78.233) * 43758.5453) % 1; }
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+    function drawTitle(ctx, text) { ctx.fillStyle = '#b8d4ff'; ctx.font = '12px Arial'; ctx.fillText(text, 10, 16); }
+    function clearCanvas(ctx, w, h) { ctx.fillStyle = '#0a1220'; ctx.fillRect(0, 0, w, h); }
+    function drawGrid(ctx, w, h, dx, dy, color) { ctx.strokeStyle = color; ctx.lineWidth = 1; for (var x = 0; x <= w; x += dx) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); } for (var y = 0; y <= h; y += dy) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); } }
+    function drawIsolines(ctx, w, h) { ctx.strokeStyle = 'rgba(255,255,255,0.18)'; for (var i = 0; i < 16; i++) { ctx.beginPath(); for (var x = 0; x <= w; x += 16) { var y = h * 0.5 + Math.sin(x * 0.03 + i) * (8 + i); if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); } ctx.stroke(); } }
+    function drawUTM(ctx, w, h) { ctx.fillStyle = '#85a8d8'; ctx.font = '11px Arial'; ctx.fillText('UTM 48N 68E', w - 100, 15); drawGrid(ctx, w, h, 60, 60, 'rgba(130,170,225,0.12)'); }
+    function drawAnomalyMarkers(ctx, w, h) { var p = [[w*0.2,h*0.5,'AN-01 88%'],[w*0.55,h*0.4,'AN-02 76%'],[w*0.75,h*0.67,'AN-03 63%']]; ctx.font='11px Arial'; for (var i=0;i<p.length;i++){ctx.fillStyle='#ffcc66';ctx.beginPath();ctx.arc(p[i][0],p[i][1],6,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f9f2cc';ctx.fillText(p[i][2],p[i][0]+8,p[i][1]-8);} }
+
+    function drawSatellite(ctx, w, h) { var g = ctx.createLinearGradient(0,0,w,h); g.addColorStop(0,'#2f3b29'); g.addColorStop(1,'#4d3624'); ctx.fillStyle = g; ctx.fillRect(0,0,w,h); for (var i=0;i<800;i++){var x=(i*53)%w;var y=(i*97)%h;ctx.fillStyle='rgba(150,40,30,'+(0.1+(i%7)/20)+')';ctx.fillRect(x,y,3,3);} }
+    function drawSeismic(ctx, w, h) { ctx.fillStyle='#05070a'; ctx.fillRect(0,0,w,h); ctx.strokeStyle='rgba(230,230,230,0.6)'; for (var x=10; x<w; x+=18){ ctx.beginPath(); for (var y=0; y<h; y+=4){ var v = Math.sin(y*0.07 + x*0.06) * 7; if (y===0) ctx.moveTo(x+v,y); else ctx.lineTo(x+v,y);} ctx.stroke(); } ctx.strokeStyle='#89b7ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(w*0.28,0); ctx.lineTo(w*0.40,h); ctx.stroke(); ctx.beginPath(); ctx.moveTo(w*0.63,0); ctx.lineTo(w*0.52,h); ctx.stroke(); }
+    function drawMagnetics(ctx, w, h) { for (var y=0;y<h;y++){ for(var x=0;x<w;x++){ var v=Math.sin(x*0.05)+Math.cos(y*0.04)+Math.sin((x+y)*0.03); var r=clamp(80+v*60,0,255); var g=clamp(110+v*70,0,255); var b=clamp(180-v*80,0,255); ctx.fillStyle='rgb('+r+','+g+','+b+')'; ctx.fillRect(x,y,1,1);} } }
+    function drawGravity(ctx, w, h) { var grd=ctx.createRadialGradient(w*0.3,h*0.4,20,w*0.5,h*0.5,w*0.7); grd.addColorStop(0,'#f3c34e'); grd.addColorStop(0.4,'#84cc80'); grd.addColorStop(1,'#534fd4'); ctx.fillStyle=grd; ctx.fillRect(0,0,w,h); }
+    function drawGeology(ctx, w, h) { var cols=['#62544d','#7d6f61','#54604f','#8a7e52','#4e5b68','#5f4967']; for (var i=0;i<6;i++){ ctx.fillStyle=cols[i]; ctx.beginPath(); ctx.moveTo((i*w)/6,0); ctx.lineTo(((i+1)*w)/6 + (i%2===0?30:-20),0); ctx.lineTo(((i+1)*w)/6,h); ctx.lineTo((i*w)/6 + (i%2===1?20:-10),h); ctx.closePath(); ctx.fill(); ctx.strokeStyle='#222'; ctx.stroke(); } }
+    function drawIP(ctx, w, h) { for (var i=0;i<10;i++){ var yy=i*h/10; var grad=ctx.createLinearGradient(0,yy,w,yy); grad.addColorStop(0,'#2a61d7'); grad.addColorStop(0.5,'#4cb8b8'); grad.addColorStop(1,'#d6753e'); ctx.fillStyle=grad; ctx.fillRect(0,yy,w,h/10+1); } }
+
+    function drawCanvas01() { var c=document.getElementById('cv1'); var ctx=c.getContext('2d'); var w=c.width,h=c.height; clearCanvas(ctx,w,h); if(activeLayer==='Satellite')drawSatellite(ctx,w,h); if(activeLayer==='Seismic')drawSeismic(ctx,w,h); if(activeLayer==='Magnetics')drawMagnetics(ctx,w,h); if(activeLayer==='Gravity')drawGravity(ctx,w,h); if(activeLayer==='Geology')drawGeology(ctx,w,h); if(activeLayer==='IP/Resistivity')drawIP(ctx,w,h); drawIsolines(ctx,w,h); drawUTM(ctx,w,h); drawAnomalyMarkers(ctx,w,h); drawTitle(ctx,activeLayer+' Layer'); }
+    function drawCanvas02() { var ctx=getCtx('cv2'); clearCanvas(ctx,500,220); drawSatellite(ctx,500,220); ctx.globalAlpha=0.45; drawSeismic(ctx,500,220); ctx.globalAlpha=0.45; drawMagnetics(ctx,500,220); ctx.globalAlpha=1; drawTitle(ctx,'Integrated Stack (6 layers)'); }
+    function drawCanvas03() { var ctx=getCtx('cv3'); clearCanvas(ctx,500,220); var grad=ctx.createLinearGradient(50,20,50,190); grad.addColorStop(0,'#ff4f39'); grad.addColorStop(0.25,'#e8e15f'); grad.addColorStop(0.5,'#69c97d'); grad.addColorStop(0.75,'#4e92d4'); grad.addColorStop(1,'#5141c7'); ctx.fillStyle=grad; ctx.fillRect(30,20,40,180); ctx.fillStyle='#bfd6fa'; ctx.fillText(activeLayer+' scale',90,40); }
+    function drawCanvas04() { var ctx=getCtx('cv4'); clearCanvas(ctx,500,220); var vals=[88,76,63]; var labels=['AN-01','AN-02','AN-03']; for (var i=0;i<3;i++){ ctx.fillStyle='#1d3353'; ctx.fillRect(110,40+i*55,300,24); ctx.fillStyle='#f8bc4d'; ctx.fillRect(110,40+i*55,vals[i]*3,24); ctx.fillStyle='#dce9ff'; ctx.fillText(labels[i]+' '+vals[i]+'%',30,57+i*55);} }
+    function drawCanvas05() { var ctx=getCtx('cv5'); clearCanvas(ctx,900,300); drawMagnetics(ctx,900,300); ctx.globalAlpha=0.35; drawGravity(ctx,900,300); ctx.globalAlpha=1; drawIsolines(ctx,900,300); drawTitle(ctx,'RTP + Bouguer fusion'); }
+    function drawCanvas06() { var ctx=getCtx('cv6'); clearCanvas(ctx,500,300); for (var y=0;y<300;y++){ for(var x=0;x<500;x++){ var r=clamp(120+80*Math.sin(x*0.02),0,255); var g=clamp(120+80*Math.sin(y*0.02),0,255); var b=clamp(120+80*Math.sin((x+y)*0.015),0,255); ctx.fillStyle='rgb('+r+','+g+','+b+')'; ctx.fillRect(x,y,1,1);} } }
+    function drawCanvas07() { var ctx=getCtx('cv7'); clearCanvas(ctx,900,260); drawGeology(ctx,900,260); ctx.strokeStyle='#96beff'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(120,0); ctx.lineTo(280,260); ctx.stroke(); ctx.beginPath(); ctx.moveTo(620,0); ctx.lineTo(500,260); ctx.stroke(); ctx.fillStyle='#cde0ff'; ctx.fillText('F1',130,40); ctx.fillText('F2',620,50); }
+    function drawCanvas08() { var ctx=getCtx('cv8'); clearCanvas(ctx,500,260); var d=[['AN-01',0.88],['AN-02',0.76],['AN-03',0.63],['AN-04',0.48]]; for(var i=0;i<d.length;i++){ctx.fillStyle='#233a5d';ctx.fillRect(120,30+i*50,320,26);ctx.fillStyle='#4fd58b';ctx.fillRect(120,30+i*50,d[i][1]*320,26);ctx.fillStyle='#d7e8ff';ctx.fillText(d[i][0],30,47+i*50);} }
+    function drawCanvas09() { var ctx=getCtx('cv9'); clearCanvas(ctx,900,300); drawGravity(ctx,900,300); ctx.globalAlpha=0.55; drawMagnetics(ctx,900,300); ctx.globalAlpha=1; drawIsolines(ctx,900,300); }
+    function drawCanvas10() { var ctx=getCtx('cv10'); clearCanvas(ctx,500,300); for(var i=0;i<3;i++){ ctx.strokeStyle=['#58a6ff','#f6b648','#ff5f7d'][i]; ctx.strokeRect(40+i*20,40+i*20,420-i*40,220-i*40); ctx.fillStyle='#cfe1ff'; ctx.fillText('Depth '+(i*200+100)+'m',60+i*20,60+i*20);} }
+    function drawCanvas11() { var ctx=getCtx('cv11'); clearCanvas(ctx,1400,260); ctx.fillStyle='#2b261e'; ctx.fillRect(0,0,1400,40); var lay=['#5d4f46','#6d5d55','#4b4f57','#353740','#26272d']; for(var i=0;i<5;i++){ctx.fillStyle=lay[i];ctx.fillRect(0,40+i*40,1400,45);} ctx.fillStyle='rgba(255,185,65,0.7)'; ctx.beginPath(); ctx.ellipse(720,170,140,50,0,0,Math.PI*2); ctx.fill(); }
+    function drawCanvas12() { var ctx=getCtx('cv12'); clearCanvas(ctx,430,220); ctx.fillStyle='#a6c6f4'; ctx.fillText('Lithology proportions',10,20); var vals=[14,11,9,18,16,12,20]; var cols=['#171a22','#9a5828','#746255','#4b4f57','#0c0f14','#736f86','#1a1e2c']; for(var i=0;i<vals.length;i++){ctx.fillStyle=cols[i];ctx.fillRect(20+i*56,200-vals[i]*7,40,vals[i]*7);} }
+    function drawCanvas13() { var c=document.getElementById('cv13'); if(!c){ return; } var ctx=c.getContext('2d'); clearCanvas(ctx,430,220); ctx.strokeStyle='#6fa8ff'; ctx.beginPath(); for(var x=0;x<430;x++){var y=120+Math.sin(x*0.05)*20+Math.sin(x*0.013)*30; if(x===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);} ctx.stroke(); ctx.fillStyle='#9fc3f6'; ctx.fillText('Block model confidence',10,20); }
+    function drawCanvas14() { var ctx=getCtx('cv14'); clearCanvas(ctx,900,300); drawGeology(ctx,900,300); for(var i=0;i<7;i++){ctx.strokeStyle='#74bbff';ctx.beginPath();ctx.moveTo(100+i*100,20);ctx.lineTo(130+i*90,280);ctx.stroke();} ctx.fillStyle='#c4dcff'; ctx.fillText('AI targets clustered on alteration corridor',15,20); }
+    function drawCanvas15() { var ctx=getCtx('cv15'); clearCanvas(ctx,500,300); var names=['Base','Aggressive','Conservative']; var p=[71,83,64]; for(var i=0;i<3;i++){ctx.fillStyle='#233754';ctx.fillRect(130,40+i*80,320,32);ctx.fillStyle='#57d98f';ctx.fillRect(130,40+i*80,p[i]*3,32);ctx.fillStyle='#d8e6ff';ctx.fillText(names[i]+' '+p[i]+'%',30,60+i*80);} }
+    function drawCanvas16() { var ctx=getCtx('cv16'); clearCanvas(ctx,1400,260); drawCanvas11Base(ctx,1400,260); for(var i=0;i<8;i++){ ctx.strokeStyle = i<4 ? '#5ac0ff' : '#8f99a5'; ctx.beginPath(); ctx.moveTo(150+i*140,10); ctx.bezierCurveTo(160+i*140,90,140+i*140,140,155+i*140,250); ctx.stroke(); } }
+    function drawCanvas11Base(ctx,w,h){ ctx.fillStyle='#161b25';ctx.fillRect(0,0,w,h); for(var i=0;i<6;i++){ctx.fillStyle='rgba('+(80+i*20)+','+(60+i*12)+','+(50+i*8)+',0.95)'; ctx.fillRect(0,i*44,w,44);} }
+    function drawCanvas17() { var ctx=getCtx('cv17'); clearCanvas(ctx,450,260); ctx.strokeStyle='#56c7ff'; ctx.beginPath(); for(var x=0;x<450;x++){var y=130+Math.sin(x*0.07)*30+Math.sin(x*0.023)*20; if(x===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);} ctx.stroke(); }
+    function drawCanvas18() { var ctx=getCtx('cv18'); clearCanvas(ctx,450,260); ctx.strokeStyle='#65d2ff'; ctx.beginPath(); ctx.moveTo(60,20); for(var t=0;t<1.0;t+=0.02){ var x=60+t*320; var y=20+t*220+Math.sin(t*15)*8; ctx.lineTo(x,y);} ctx.stroke(); }
+    function drawCanvas19() { var ctx=getCtx('cv19'); clearCanvas(ctx,450,260); var rows=['00:02 Pump on','00:08 Lith switch','00:13 Gamma spike','00:18 Torque high','00:21 Stable']; for(var i=0;i<rows.length;i++){ctx.fillStyle=i===2||i===3?'#ff7d7d':'#8db3e3';ctx.fillText(rows[i],20,40+i*38);} }
+    function drawCanvas20() { var ctx=getCtx('cv20'); clearCanvas(ctx,900,260); ctx.strokeStyle='#ffc95d'; ctx.beginPath(); for(var x=0;x<900;x++){ var y=140+Math.sin(x*0.04)*20 + Math.sin(x*0.15)*7; if(x===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);} ctx.stroke(); }
+    function drawCanvas21() { var ctx=getCtx('cv21'); clearCanvas(ctx,500,260); var names=['Topsoil','Oxide','Transition','Shale','Mafic sill','Quartz diorite','Basement']; var cols=['#14161d','#9d5f2f','#72645a','#4d515a','#0d0e11','#6f6d83','#1a1d24']; for(var i=0;i<7;i++){ctx.fillStyle=cols[i];ctx.fillRect(120,10+i*35,180,32);ctx.fillStyle='#dce9ff';ctx.fillText(names[i],12,30+i*35);} }
+    function drawCanvas22() { var ctx=getCtx('cv22'); clearCanvas(ctx,450,260); for(var i=0;i<16;i++){ctx.fillStyle=i%2===0?'#78634b':'#5b4a38';ctx.fillRect(20+i*24,30,22,200);} ctx.strokeStyle='#9fd0ff'; ctx.strokeRect(18,28,390,204); }
+    function drawCanvas23() { var ctx=getCtx('cv23'); clearCanvas(ctx,450,260); var el=['Au','Ag','Cu','As','S']; var v=[2.8,11.2,0.9,4.6,1.8]; for(var i=0;i<el.length;i++){ctx.fillStyle='#2a415f';ctx.fillRect(70+i*70,200-v[i]*15,38,v[i]*15);ctx.fillStyle='#cfe1ff';ctx.fillText(el[i],74+i*70,220);} }
+    function drawCanvas24() { var ctx=getCtx('cv24'); clearCanvas(ctx,450,260); for(var y=0;y<260;y++){ for(var x=0;x<450;x++){ var v=Math.sin(x*0.03)*Math.cos(y*0.04); var c=clamp(120+v*120,0,255); ctx.fillStyle='rgb('+(c)+','+(80+c/2)+','+(220-c/2)+')'; ctx.fillRect(x,y,1,1);} } }
+    function drawCanvas25() { var ctx=getCtx('cv25'); clearCanvas(ctx,900,300); var metrics=[['Time',90,8],['Cost',80,25],['Hit Rate',35,72],['Metres',100,58],['Cost/oz',85,30],['Success',40,78]]; for(var i=0;i<metrics.length;i++){ var x=40+i*140; var h1=metrics[i][1]*2; var h2=metrics[i][2]*2; ctx.fillStyle='#ff4c63'; ctx.fillRect(x,260-h1,40,h1); ctx.fillStyle='#45d483'; ctx.fillRect(x+48,260-h2,40,h2); ctx.fillStyle='#dce8ff'; ctx.fillText(metrics[i][0],x-2,285); ctx.fillStyle='#f8b84a'; ctx.fillRect(x,18,90,18); ctx.fillStyle='#3a2a08'; ctx.fillText(Math.round((metrics[i][1]-metrics[i][2])/metrics[i][1]*100)+'% +',x+20,31);} }
+    function drawCanvas26() { var ctx=getCtx('cv26'); clearCanvas(ctx,500,300); ctx.fillStyle='#ff5870'; ctx.fillRect(30,30,360,22); ctx.fillStyle='#45d483'; ctx.fillRect(30,70,70,22); ctx.fillStyle='#dce9ff'; ctx.fillText('Traditional 7.5 years',40,45); ctx.fillText('AI 4 weeks',40,85); ctx.fillText('NPV P10/P50/P90 @ $1600-$2600',30,130); var npv=[28,63,111]; for(var i=0;i<3;i++){ctx.fillStyle='#2f4c75';ctx.fillRect(30+i*90,150,60,npv[i]);ctx.fillStyle='#cce2ff';ctx.fillText(['P10','P50','P90'][i],42+i*90,280);} ctx.fillText('Waterfall: $21M -> $6M',30,145); }
+
+    function populateNav() { var nav=document.getElementById('topNav'); var names=['01 Data Lake','02 Anomaly','03 Prospectivity','04 3D Viewer','05 Targeting','06 Drilling','07 Core','08 ROI']; for(var i=1;i<=8;i++){ var b=document.createElement('button'); b.className='tab-btn'+(i===1?' active':''); b.textContent=names[i-1]; b.dataset.screen=i; b.onclick=function(){setScreen(parseInt(this.dataset.screen,10));}; nav.appendChild(b);} }
+    function setScreen(id) { activeScreen=id; var screens=document.querySelectorAll('.screen'); for(var i=0;i<screens.length;i++){ screens[i].classList.remove('active'); } document.getElementById('screen'+id).classList.add('active'); var btns=document.querySelectorAll('.tab-btn'); for(var j=0;j<btns.length;j++){ btns[j].classList.remove('active'); if(parseInt(btns[j].dataset.screen,10)===id) btns[j].classList.add('active'); } resizeThree(); }
+    function populateSources() { var arr=['Satellite','Seismic','Magnetics RTP','Gravity Bouguer','Geology Map','IP/Resistivity','Radiometrics','DEM','Assays','Drill Logs','Structural Data']; var host=document.getElementById('sourceCards'); for(var i=0;i<arr.length;i++){var d=document.createElement('div');d.className='src-card';d.textContent=arr[i];host.appendChild(d);} }
+    function populateLayerButtons() { var arr=['Satellite','Seismic','Magnetics','Gravity','Geology','IP/Resistivity']; var host=document.getElementById('layerButtons'); for(var i=0;i<arr.length;i++){ var b=document.createElement('button'); b.className='small-btn'+(i===0?' active':''); b.textContent=arr[i]; b.dataset.layer=arr[i]; b.onclick=function(){activeLayer=this.dataset.layer; var all=host.querySelectorAll('.small-btn'); for(var k=0;k<all.length;k++){all[k].classList.remove('active');} this.classList.add('active'); drawCanvas01(); drawCanvas03();}; host.appendChild(b);} }
+    function populateKPI() { var vals=[['Time to Discovery','4 weeks'],['Total Cost','$6.0M'],['Drill Hit Rate','78%'],['Metres Drilled','34,200 m'],['Cost/oz Au','$123'],['Success Rate','81%']]; var host=document.getElementById('kpiRow'); for(var i=0;i<vals.length;i++){var d=document.createElement('div');d.className='kpi';d.innerHTML='<div>'+vals[i][0]+'</div><b>'+vals[i][1]+'</b>';host.appendChild(d);} }
+    function populateThreeButtons() { var arr=[['Ore Bodies','ore'],['Drill Holes','drills'],['Fault Planes','faults'],['EW Section','section'],['Grid','grid']]; var host=document.getElementById('threeButtons'); for(var i=0;i<arr.length;i++){ var b=document.createElement('button'); b.className='small-btn active'; b.textContent=arr[i][0]; b.dataset.key=arr[i][1]; b.onclick=function(){ var k=this.dataset.key; showFlags[k]=!showFlags[k]; this.classList.toggle('active'); applyThreeVisibility(); }; host.appendChild(b);} }
+    function populateLegend() { document.getElementById('legendBox').innerHTML =
+      'Topsoil (dark)<br>Fe-oxide zone (rust orange)<br>Transition zone (brown gray)<br>Carbonate shale (dark gray lamination)<br>Mafic sill (black + quartz veins)<br>Quartz diorite (gray violet)<br>Metamorphic basement (banded dark)<br><br><span class="badge">Resource uplift +42%</span>'; }
+
+    function initThree() {
+      var host=document.getElementById('threeHost');
+      threeScene = new THREE.Scene();
+      threeScene.background = new THREE.Color(0x091120);
+      threeCamera = new THREE.PerspectiveCamera(55, host.clientWidth / host.clientHeight, 0.1, 1000);
+      threeCamera.position.set(18, 16, 20);
+      threeRenderer = new THREE.WebGLRenderer({ antialias: true });
+      threeRenderer.setSize(host.clientWidth, host.clientHeight);
+      host.innerHTML='';
+      host.appendChild(threeRenderer.domElement);
+      var amb = new THREE.AmbientLight(0x88aaff, 0.65); threeScene.add(amb);
+      var dir = new THREE.DirectionalLight(0xffffff, 0.7); dir.position.set(12,20,10); threeScene.add(dir);
+      threeRoot = new THREE.Group(); threeScene.add(threeRoot);
+      buildTerrain(); buildLayerBlock(); buildOreBody(); buildDrills(); buildFault(); buildGrid();
+      bindThreeMouse(); applyThreeVisibility(); animateThree();
+    }
+    function buildTerrain() { var geo=new THREE.PlaneGeometry(22,22,22,22); geo.rotateX(-Math.PI/2); var colors=[]; for(var i=0;i<geo.attributes.position.count;i++){ var y=geo.attributes.position.getY(i); var x=geo.attributes.position.getX(i); var z=geo.attributes.position.getZ(i); var h=Math.sin(x*0.35)+Math.cos(z*0.45); geo.attributes.position.setY(i, h*0.7+6.5); var c=h>0?new THREE.Color(0x5e5a42):new THREE.Color(0x424736); colors.push(c.r,c.g,c.b);} geo.setAttribute('color', new THREE.Float32BufferAttribute(colors,3)); var mat=new THREE.MeshLambertMaterial({vertexColors:true}); var m=new THREE.Mesh(geo,mat); threeRoot.add(m); }
+    function buildLayerBlock() { var layers=[0x13161d,0x9b5d2d,0x6d6258,0x4b4f58,0x0a0b0e,0x6f6f81,0x161a22]; for(var i=0;i<layers.length;i++){ var g=new THREE.BoxGeometry(20,1.8,20); var m=new THREE.MeshLambertMaterial({color:layers[i]}); var mesh=new THREE.Mesh(g,m); mesh.position.y=5.5 - (i+1)*1.8; threeRoot.add(mesh); if(i===4){ addVeins(mesh.position.y); } } }
+    function addVeins(yPos) { for(var i=0;i<9;i++){ var g=new THREE.CylinderGeometry(0.04,0.04,8,6); var m=new THREE.MeshBasicMaterial({color:0xd7d7df}); var v=new THREE.Mesh(g,m); v.rotation.z=0.8; v.position.set(-8+i*2, yPos+0.1, -1+i*0.5); threeRoot.add(v);} }
+    function buildOreBody() { threeOreGroup = new THREE.Group(); var halo=new THREE.Mesh(new THREE.SphereGeometry(2.9,24,24),new THREE.MeshBasicMaterial({color:0xff8c2e,transparent:true,opacity:0.20})); var ore=new THREE.Mesh(new THREE.SphereGeometry(2.1,24,24),new THREE.MeshLambertMaterial({color:0xc7791e,emissive:0x553300})); var core=new THREE.Mesh(new THREE.SphereGeometry(1.2,20,20),new THREE.MeshBasicMaterial({color:0xffd44d,transparent:true,opacity:0.85})); threeOreGroup.position.set(1,-2.8,2); threeOreGroup.add(halo); threeOreGroup.add(ore); threeOreGroup.add(core); threeScene.add(threeOreGroup); }
+    function buildDrills() { var hitPos=[[-5,6,-3],[-1,6,-1],[2,6,1],[5,6,4]]; var missPos=[[-8,6,4],[8,6,-4]]; for(var i=0;i<hitPos.length;i++){var d=createDrill(hitPos[i],true);threeDrills.push(d);threeScene.add(d);} for(var j=0;j<missPos.length;j++){var dm=createDrill(missPos[j],false);threeDrills.push(dm);threeScene.add(dm);} }
+    function createDrill(p, hit){ var g=new THREE.CylinderGeometry(0.1,0.1,12,10); var c=hit?0x6fd3ff:0x76808e; var m=new THREE.MeshBasicMaterial({color:c}); var d=new THREE.Mesh(g,m); d.position.set(p[0],0,p[2]); var glow=new THREE.PointLight(hit?0x68d0ff:0x444444, hit?1.1:0.2, 8); glow.position.set(p[0],5.8,p[2]); threeScene.add(glow); return d; }
+    function buildFault() { var g=new THREE.PlaneGeometry(16,10); var m=new THREE.MeshBasicMaterial({color:0x4b88ff,transparent:true,opacity:0.35,side:THREE.DoubleSide}); threeFault=new THREE.Mesh(g,m); threeFault.position.set(-1,0,0); threeFault.rotation.y=0.7; threeScene.add(threeFault); }
+    function buildGrid() { var helper=new THREE.GridHelper(28,28,0x335588,0x223955); helper.position.y=-7; threeGrid=helper; threeScene.add(helper); }
+    function bindThreeMouse() { var dom=threeRenderer.domElement; dom.addEventListener('mousedown',onThreeDown); dom.addEventListener('mousemove',onThreeMove); dom.addEventListener('mouseup',onThreeUp); dom.addEventListener('mouseleave',onThreeUp); dom.addEventListener('wheel',onThreeWheel); }
+    function onThreeDown(e) { threeControlsState.dragging=true; threeControlsState.x=e.clientX; threeControlsState.y=e.clientY; }
+    function onThreeMove(e) { if(!threeControlsState.dragging){return;} var dx=e.clientX-threeControlsState.x; var dy=e.clientY-threeControlsState.y; threeControlsState.x=e.clientX; threeControlsState.y=e.clientY; threeControlsState.ry += dx*0.01; threeControlsState.rx += dy*0.01; }
+    function onThreeUp() { threeControlsState.dragging=false; }
+    function onThreeWheel(e) { e.preventDefault(); threeControlsState.zoom += e.deltaY>0?0.08:-0.08; threeControlsState.zoom = clamp(threeControlsState.zoom,0.6,1.8); }
+    function applyThreeVisibility() { if(threeOreGroup){ threeOreGroup.visible=showFlags.ore; } for(var i=0;i<threeDrills.length;i++){ threeDrills[i].visible=showFlags.drills; } if(threeFault){ threeFault.visible=showFlags.faults; } if(threeGrid){ threeGrid.visible=showFlags.grid; } }
+    function animateThree() { requestAnimationFrame(animateThree); if(!threeScene){return;} if(threeRoot){ threeRoot.rotation.y = threeControlsState.ry; threeRoot.rotation.x = threeControlsState.rx; } if(threeCamera){ threeCamera.position.set(18*threeControlsState.zoom,16*threeControlsState.zoom,20*threeControlsState.zoom); threeCamera.lookAt(0,-2,0); } if(threeOreGroup){ var t=Date.now()*0.003; var s=1 + Math.sin(t)*0.08; threeOreGroup.children[0].scale.set(s,s,s); threeOreGroup.children[2].material.opacity = 0.65 + 0.2*Math.sin(t*1.7); } threeRenderer.render(threeScene, threeCamera); }
+    function resizeThree() { if(!threeRenderer){return;} var host=document.getElementById('threeHost'); if(host.clientWidth<10){return;} threeCamera.aspect=host.clientWidth/host.clientHeight; threeCamera.updateProjectionMatrix(); threeRenderer.setSize(host.clientWidth,host.clientHeight); }
+
+    function drawAllCanvases() { drawCanvas01(); drawCanvas02(); drawCanvas03(); drawCanvas04(); drawCanvas05(); drawCanvas06(); drawCanvas07(); drawCanvas08(); drawCanvas09(); drawCanvas10(); drawCanvas11(); drawCanvas12(); drawCanvas13(); drawCanvas14(); drawCanvas15(); drawCanvas16(); drawCanvas17(); drawCanvas18(); drawCanvas19(); drawCanvas20(); drawCanvas21(); drawCanvas22(); drawCanvas23(); drawCanvas24(); drawCanvas25(); drawCanvas26(); }
+    function initAll() { populateNav(); populateSources(); populateLayerButtons(); populateKPI(); populateThreeButtons(); populateLegend(); drawAllCanvases(); initThree(); window.addEventListener('resize', resizeThree); }
+
+    function utility01() { return activeScreen; }
+    function utility02() { return activeLayer; }
+    function utility03(a) { return a * a; }
+    function utility04(a,b) { return a + b; }
+    function utility05(a,b) { return a - b; }
+    function utility06(a,b) { return a / (b || 1); }
+    function utility07(a,b) { return Math.pow(a,b); }
+    function utility08(s) { return String(s).toUpperCase(); }
+    function utility09(s) { return String(s).toLowerCase(); }
+    function utility10(v) { return clamp(v,0,100); }
+
+    initAll();
+  </script>
+</body>
+</html>
